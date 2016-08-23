@@ -1,1 +1,4 @@
 *.swp
+bootstrap.*
+jquery.*
+ie*
