@@ -26,23 +26,35 @@
                     <br>
                     <div class="form-group">
                         <label>Description:</label>
-                        <textarea class="form-control" rows="5" placeholder="Enter Description, Dawg" required></textarea>
+                        <textarea class="form-control" id="description" rows="5" placeholder="Enter Description, Dawg" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-default">Add User</button>
                 </form>
             </div>
             <div class="contacts col-xs-4">
+                <!-- Card Example
                 <div class="row">
                     <h2 class="name">Omar Griffin</h2>
-                    <p class="desc" data-desc="Yo, this info is hidden af">Click for description!</p>
+                    <button type="button" class="btn btn-default desc center-block" data-toggle="modal" data-target="#descModal" data-desc="Yo, this info is hidden af">Description</button>
                 </div>
-                <div class="row">
-                    <h2 class="name">Omar Griffin</h2>
-                    <p class="desc">Click for description!</p>
-                </div>
-                <div class="row">
-                    <h2 class="name">Omar Griffin</h2>
-                    <p class="desc">Click for description!</p>
+                --!>
+            </div>
+        </div>
+        <!-- Modal -->
+        <div id="descModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal Content --!>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4>Modal Header</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Yo, here's my description</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
