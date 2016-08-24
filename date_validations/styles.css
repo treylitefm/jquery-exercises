@@ -1,0 +1,19 @@
+.navbar {
+    background-color: black;
+    margin-bottom: 0;
+}
+
+.container {
+    background-color: #6f6f6f;
+    padding-bottom: 100px;
+}
+
+.container > div {
+    padding-top: 30px;
+}
+
+form#date-picker {
+    color: white;
+    max-width: 330px;
+    margin: 0 auto;
+}
