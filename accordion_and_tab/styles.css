@@ -1,0 +1,13 @@
+.navbar {
+    background-color: black;
+    margin-bottom: 0;
+}
+
+.container {
+    height: 900px;
+    background-color: #6f6f6f;
+}
+
+.container > div {
+    padding-top: 30px;
+}
