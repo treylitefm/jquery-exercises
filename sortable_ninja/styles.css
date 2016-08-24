@@ -1,0 +1,52 @@
+.navbar {
+    background-color: black;
+    margin-bottom: 0;
+}
+
+.container {
+    height: 500px;
+    background-color: #6f6f6f;
+}
+
+.container > div {
+    padding-top: 30px;
+}
+
+ul {
+    list-style-type: none;
+    display: block;
+    margin: 0 auto;
+}
+
+ul li {
+    display: block;
+}
+
+.image {
+    height: 51px;
+    width: 181px;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    margin: 4px;
+}
+
+.image0 {
+    background-image: url(ninja0.png);
+    margin-bottom: -8px;
+}
+
+.image1 {
+    background-image: url(ninja1.png);
+}
+
+.image2 {
+    background-image: url(ninja2.png);
+}
+
+.image3 {
+    background-image: url(ninja3.png);
+}
+
+.image4 {
+    background-image: url(ninja4.png);
+}
