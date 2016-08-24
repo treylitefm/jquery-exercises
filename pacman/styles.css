@@ -1,0 +1,74 @@
+* {
+    font-family: Calibri;
+}
+body {
+    position: relative;
+}
+.container {
+    width: 640px;
+    height: 540px;
+    background-color: black;
+    margin: 0 auto;
+    padding-top: 15px;
+    box-sizing: border-box;
+    border-radius: 5px;
+}
+
+.stage {
+    width: 465px;
+    height: 465px;
+    background-color: white;
+    margin: 0 auto;
+    position: relative;
+}
+
+.barrier {
+    height: 100px;
+    width: 100px;
+    background-color: red;
+    margin: 0 auto;
+}
+
+.sprite {
+    height: 100px;
+    width: 100px;
+    background-color: gold; 
+    position: absolute;
+
+    left: 0;
+    top: 0;
+}
+
+.log {
+    width: 200px;
+    max-height: 540px;
+    background-color: blue;
+    color: white;
+    margin: 0 auto;
+    position: absolute;
+    overflow: auto;
+    border-radius: 5px;
+    top: 0;
+}
+
+.log-left {
+    left: 0;
+}
+
+.log-right {
+    right: 0;
+
+}
+
+.log.log-right p {
+    margin-left: 50px;
+}
+
+.log h3 {
+    text-align: center;
+}
+
+.log p {
+    margin-left: 40px;
+    font-size: 1.1em;
+}
