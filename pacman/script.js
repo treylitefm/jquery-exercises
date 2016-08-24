@@ -1,17 +1,17 @@
 $(document).ready(function() {
-    var shiftDelta = 25; //px
-    var shiftCadence = 25; //ms
+    var shiftDelta = 5; //px
+    var shiftCadence = 20; //ms
     var logCadence = 500; //ms
     var direction  = 'right';
 
-    var shiftIntervalID = setInterval(function() { shift(); }, shiftCadence);
+    var shiftIntervalID = setInterval(shift, shiftCadence);
 
     var logIntervalID = setInterval(function() {
         var sprite = $('.sprite');
         var sLeft = sprite.css('left');
         var sTop = sprite.css('top');
 
-        //logDelta(sLeft, sTop);
+        logDelta(sLeft, sTop);
     }, logCadence);
 
 
@@ -33,20 +33,20 @@ $(document).ready(function() {
         }
 
         direction = getKeyName(e);
-        //logKeyPressEvent(e);
+        logKeyPressEvent(e);
     });
 
     function shift() {
         var sprite = $('.sprite');
 
         if (direction == 'left') {
-            sprite.animate({'left': '-='+shiftDelta}, shiftCadence, 'swing');
+            sprite.animate({'left': '-='+shiftDelta}, 0, 'linear');
         } else if (direction == 'up') {
-            sprite.animate({'top': '-='+shiftDelta}, shiftCadence, 'swing');
+            sprite.animate({'top': '-='+shiftDelta}, 0, 'linear');
         } else if (direction == 'right') {
-            sprite.animate({'left': '+='+shiftDelta}, shiftCadence, 'swing');
+            sprite.animate({'left': '+='+shiftDelta},0, 'linear');
         } else if (direction == 'down') {
-            sprite.animate({'top': '+='+shiftDelta}, shiftCadence, 'swing');
+            sprite.animate({'top': '+='+shiftDelta}, 0, 'linear');
         }
     }
 
