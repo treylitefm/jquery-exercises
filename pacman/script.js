@@ -53,23 +53,27 @@ $(document).ready(function() {
     var shiftCadence = 20; //ms
     var logCadence = 500; //ms
     var direction  = 'right';
+    var initiated = false;
 
-    var shiftIntervalID = setInterval(shift, shiftCadence);
+    //var shiftIntervalID = setInterval(shift, shiftCadence);
 
-    var logIntervalID = setInterval(function() {
+    /*var logIntervalID = setInterval(function() {
         var sprite = $('.sprite');
         var sLeft = sprite.css('left');
         var sTop = sprite.css('top');
 
         logDelta(sLeft, sTop);
     }, logCadence);
-
-    window.stage0 = stage0; //TODO: delete
+*/
 
     $(document).on('keydown', function(e) {
         if (e.which == 32) {
+            if (!initiated) {
+                buildStage(stage0);
+                initiated = true;
+            }
             console.log('Stopping');
-            clearInterval(shiftIntervalID);
+            //clearInterval(shiftIntervalID);
             return false; 
         }
 
@@ -115,6 +119,40 @@ $(document).ready(function() {
         }
 
         return text;
+    }
+
+    function buildStage(stage) {
+        console.log('stage: ', stage, stage.length, stage[0].length, stage[0][0].length);//TODO: delete
+
+        function getBlockType(block) {
+            var type;
+
+            if (block == 0) {
+               type = 'border'; 
+            } else if (block == 1) {
+                type = 'pellet';
+            } else if (block == 2) {
+                type = 'super-pellet';
+            } else if (block == 3) {
+                type = 'ghost';
+            } else if (block == 4) {
+                type = 'fruit';
+            } else if (block == 5) {
+                type = 'portal';
+            } else if (block == 6) {
+                type = 'empty'
+            }
+
+            return type;
+        }
+        var block;
+        for (var i = 0; i < stage.length; i++) {
+            for (var j = 0; j < stage[i].length; j++) {
+                console.log('sinner!');
+                block = getBlockType(stage[i][j]);
+                $('.stage').append('<div class="block '+block+'">block</div>');
+            }
+        }
     }
 
     function logKeyPressEvent(e) {

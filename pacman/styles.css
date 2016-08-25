@@ -15,18 +15,46 @@ body {
 }
 
 .stage {
-    width: 512px;
-    height: 512px;
+    width: 448px;
+    height: 496px;
     background-color: white;
     margin: 0 auto;
     position: relative;
+    font-size: 0;
 }
 
-.barrier {
-    height: 100px;
-    width: 100px;
+.stage .block {
+    height: 16px;
+    width: 16px;
+    display: inline-block;
+}
+
+.border {
+    background-color: blue;
+}
+
+.pellet {
+    background-color: yellow;
+}
+
+.super-pellet {
+    background-color: gold;
+}
+
+.ghost {
+    background-color: white;
+}
+
+.fruit {
+    background-color: white;
+}
+
+.portal {
     background-color: red;
-    margin: 0 auto;
+}
+
+.empty {
+    background-color: black;
 }
 
 .sprite {
