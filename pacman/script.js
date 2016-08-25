@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    var shiftDelta = 5; //px
+    var shiftDelta = 4; //px
     var shiftCadence = 20; //ms
     var logCadence = 500; //ms
     var direction  = 'right';

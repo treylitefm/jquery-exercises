@@ -5,8 +5,8 @@ body {
     position: relative;
 }
 .container {
-    width: 640px;
-    height: 540px;
+    width: 680px;
+    height: 580px;
     background-color: black;
     margin: 0 auto;
     padding-top: 15px;
@@ -15,8 +15,8 @@ body {
 }
 
 .stage {
-    width: 465px;
-    height: 465px;
+    width: 512px;
+    height: 512px;
     background-color: white;
     margin: 0 auto;
     position: relative;
@@ -30,13 +30,15 @@ body {
 }
 
 .sprite {
-    height: 100px;
-    width: 100px;
+    height: 32px;
+    width: 32px;
     background-color: gold; 
     position: absolute;
 
     left: 0;
     top: 0;
+    -webkit-clip-path: circle(50% at 50% 50%);
+    clip-path: circle(50% at 50% 50%);
 }
 
 .log {
