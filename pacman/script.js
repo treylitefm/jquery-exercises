@@ -98,10 +98,9 @@ $(document).ready(function() {
 
     function shift() {
         var sprite = $('.sprite');
-        if (direction === 'left') {
-            debugger;
-        }
         var move = canMove(sprite, direction);
+
+        if (move['canMove'] === false && direction == 'left') { debugger; }
 
         if (!move['canMove']) {
             return false;
@@ -120,48 +119,67 @@ $(document).ready(function() {
         collide(direction);
     }
 
-    function canMove(el, dir) {
+    function canMove(el, dir) { //collision
         var center = getCenter(el);
         var matrixPos = getMatrixPos(center);
         var canMove = false;
 
         var x = matrixPos['x'];
         var y = matrixPos['y'];
-        var xPlus;
-        var yPlus;
-
-        if (!Number.isInteger(x) && (dir == 'up' || dir == 'down')) {
-           x = Math.floor(x);
-           xPlus = x+1;
-        }
-        if (!Number.isInteger(y) && (dir == 'left' || dir == 'right')) {
-           y = Math.floor(y);
-           yPlus = y+1;
-        }
+        var xPlus; // used for calculating the two blocks on either side of intersecting boundary
+        var yPlus; // used for calculating the two blocks on either side of intersecting boundary
 
         if (dir == 'up') {
-            if (xPlus === undefined) {
+            if (Number.isInteger(x) && Number.isInteger(y)) {
                 canMove = !isBorder(stageMatrix[y-1][x]);
-            } else {
+            } else if (Number.isInteger(x) && !Number.isInteger(y)) {
+                y = Math.ceil(y);
+                canMove = !isBorder(stageMatrix[y-1][x]);
+            } else if (!Number.isInteger(x) && Number.isInteger(y)) {
+                x = Math.floor(x);
+                xPlus = x+1;
                 canMove = !(isBorder(stageMatrix[y-1][x]) && isBorder(stageMatrix[y-1][xPlus])); 
+            } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
+                canMove = false;
             }
         } else if (dir == 'right') {
-            if (yPlus === undefined) {
-                canMove = isBorder(stageMatrix[y][x+1]);
-            } else {
+            if (Number.isInteger(x) && Number.isInteger(y)) {
+                canMove = !isBorder(stageMatrix[y][x+1]);
+            } else if (Number.isInteger(x) && !Number.isInteger(y)) {
+                y = Math.floor(y);
+                yPlus = y+1;
                 canMove = !(isBorder(stageMatrix[y][x+1]) && isBorder(stageMatrix[yPlus][x+1])); 
+            } else if (!Number.isInteger(x) && Number.isInteger(y)) {
+                x = Math.floor(x);
+                canMove = !isBorder(stageMatrix[y][x+1]);
+            } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
+                canMove = false;
             }
         } else if (dir == 'down') {
-            if (xPlus === undefined) {
-                canMove = isBorder(stageMatrix[y+1][x]);
-            } else {
+            if (Number.isInteger(x) && Number.isInteger(y)) {
+                canMove = !isBorder(stageMatrix[y+1][x]);
+            } else if (Number.isInteger(x) && !Number.isInteger(y)) {
+                y = Math.floor(y);
+                canMove = !isBorder(stageMatrix[y+1][x]);
+            } else if (!Number.isInteger(x) && Number.isInteger(y)) {
+                x = Math.floor(x);
+                xPlus = x+1;
                 canMove = !(isBorder(stageMatrix[y+1][x]) && isBorder(stageMatrix[y+1][xPlus])); 
+            } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
+                canMove = false;
             }
         } else if (dir == 'left') {
-            if (yPlus === undefined) {
-                canMove = isBorder(stageMatrix[y][x-1]);
-            } else {
+            if (Number.isInteger(x) && Number.isInteger(y)) {
+                canMove = !isBorder(stageMatrix[y][x-1]);
+            } else if (Number.isInteger(x) && !Number.isInteger(y)) {
+                y = Math.floor(y);
+                yPlus = y+1;
                 canMove = !(isBorder(stageMatrix[y][x-1]) && isBorder(stageMatrix[yPlus][x-1])); 
+            } else if (!Number.isInteger(x) && Number.isInteger(y)) {
+                x = Math.ceil(x);
+                canMove = !isBorder(stageMatrix[y][x-1]);
+            } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
+                canMove = false;
             }
         }
 
