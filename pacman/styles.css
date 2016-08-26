@@ -145,3 +145,7 @@ body {
     margin-left: 40px;
     font-size: 1.1em;
 }
+
+audio {
+    display: none;
+}

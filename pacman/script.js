@@ -75,9 +75,16 @@ $(document).ready(function() {
             if (!initialized) {
                 buildStage(stage0);
                 positionPacman();
-                shiftIntervalID = setInterval(shift, shiftCadence);
-                wakaIntervalID = setInterval(waka, wakaCadence);
-                initialized = true;
+                $('audio.start')[0].play();
+                $('audio.start').on('ended', function() {
+                    shiftIntervalID = setInterval(shift, shiftCadence);
+                    wakaIntervalID = setInterval(waka, wakaCadence);
+                    $('audio.waka0')[0].play();
+                    /*setTimeout(function() {
+                        $('audio.waka1')[0].play();
+                    }, 525);*/ //TODO:delete or fix sync between both audio files
+                    initialized = true;
+                });
             } else {
                 console.log('Stopping');
                 clearInterval(shiftIntervalID);

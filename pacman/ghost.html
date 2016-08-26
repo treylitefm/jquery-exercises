@@ -1,0 +1,62 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+        <style>
+            .stage {
+                background: black;
+                height: 500px;
+                width: 500px;
+            }
+
+            .sprite.ghost {
+                height: 320px;
+                width: 320px;
+                background: skyblue;
+                border-top-left-radius: 160px;
+                border-top-right-radius: 160px;
+                border-bottom-left-radius: 4px;
+                border-bottom-right-radius: 4px;
+
+                -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 100%, 80% 70%, 65% 100%, 50% 70%, 35% 100%, 20% 70%, 5% 100%, 0 100%);
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 100%, 80% 70%, 65% 100%, 50% 70%, 35% 100%, 20% 70%, 5% 100%, 0 100%);
+
+                position: relative;
+
+            }
+            .sprite.ghost.step {
+                -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 100%, 65% 70%, 50% 100%, 20% 70%, 5% 100%, 0 100%);
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 100%, 65% 70%, 50% 100%, 20% 70%, 5% 100%, 0 100%);
+            }
+
+            .sprite.ghost .eye {
+                height: 40%;                
+                width: 35%;                
+                background-color: white;
+                -webkit-clip-path: ellipse(40% 50% at 50% 50%);
+                clip-path: ellipse(40% 50% at 50% 50%);
+
+                position: absolute;
+                left: 3%;
+                top: 14%;
+            }
+        </style>
+        <script src="jquery.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                /*
+                setInterval(function() {
+                    var ghost = $('.ghost');
+
+                    if (ghost.hasClass('step')) {
+                        ghost.removeClass('step');
+                    } else {
+                        ghost.addClass('step');
+                    }
+                }, 100);*/
+            });
+        </script>
+    </head>
+    <body>
+        <div class="stage">
+            <div class="sprite ghost"><div class="eye"></div></div>
+        </div>
+    </body>
