@@ -58,21 +58,22 @@ $(document).ready(function() {
     var initialized = false;
 
     var shiftIntervalID;
-
+/*
     var logIntervalID = setInterval(function() {
         var sprite = $('.sprite');
         center = getCenter(sprite);
 
         logDelta(center['x'], center['y']);
+        logCanMove(sprite);
     }, logCadence);
 
-
+*/
     $(document).on('keydown', function(e) {
         if (e.which == 32) {
             if (!initialized) {
-                shiftIntervalID = setInterval(shift, shiftCadence);
                 buildStage(stage0);
                 positionPacman();
+                shiftIntervalID = setInterval(shift, shiftCadence);
                 initialized = true;
             } else {
                 console.log('Stopping');
@@ -92,17 +93,18 @@ $(document).ready(function() {
             return false; 
         }
 
-        direction = getKeyName(e);
+        directionReq = getKeyName(e);
+        shift(directionReq);
         logKeyPressEvent(e);
     });
 
-    function shift() {
+    function shift(directionReq) {
         var sprite = $('.sprite');
-        var move = canMove(sprite, direction);
+        var move;
 
-        if (move['canMove'] === false && direction == 'left') { debugger; }
-
-        if (!move['canMove']) {
+        if (directionReq !== undefined && canMove(sprite, directionReq)['canMove']) { //if passed a new direction and the new direction is able to be moved to, then set old direction to new direction
+            direction = directionReq;
+        } else if (!canMove(sprite, direction)['canMove']) { //if new direction fails, check to see if old direction can be moved to. if cant, return false with no displacement. else continue trucking on
             return false;
         }
 
@@ -128,6 +130,7 @@ $(document).ready(function() {
         var y = matrixPos['y'];
         var xPlus; // used for calculating the two blocks on either side of intersecting boundary
         var yPlus; // used for calculating the two blocks on either side of intersecting boundary
+        //debugger;
 
         if (dir == 'up') {
             if (Number.isInteger(x) && Number.isInteger(y)) {
@@ -140,7 +143,10 @@ $(document).ready(function() {
                 xPlus = x+1;
                 canMove = !(isBorder(stageMatrix[y-1][x]) && isBorder(stageMatrix[y-1][xPlus])); 
             } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
-                canMove = false;
+                y = Math.ceil(y);
+                x = Math.floor(x);
+                xPlus = x+1;
+                canMove = !(isBorder(stageMatrix[y-1][x]) || isBorder(stageMatrix[y-1][xPlus])); 
             }
         } else if (dir == 'right') {
             if (Number.isInteger(x) && Number.isInteger(y)) {
@@ -153,7 +159,10 @@ $(document).ready(function() {
                 x = Math.floor(x);
                 canMove = !isBorder(stageMatrix[y][x+1]);
             } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
-                canMove = false;
+                x = Math.floor(x);
+                y = Math.floor(y);
+                yPlus = y+1;
+                canMove = !(isBorder(stageMatrix[y][x+1]) && isBorder(stageMatrix[yPlus][x+1])); 
             }
         } else if (dir == 'down') {
             if (Number.isInteger(x) && Number.isInteger(y)) {
@@ -166,7 +175,10 @@ $(document).ready(function() {
                 xPlus = x+1;
                 canMove = !(isBorder(stageMatrix[y+1][x]) && isBorder(stageMatrix[y+1][xPlus])); 
             } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
-                canMove = false;
+                y = Math.floor(y);
+                x = Math.floor(x);
+                xPlus = x+1;
+                canMove = !(isBorder(stageMatrix[y+1][x]) && isBorder(stageMatrix[y+1][xPlus])); 
             }
         } else if (dir == 'left') {
             if (Number.isInteger(x) && Number.isInteger(y)) {
@@ -179,7 +191,10 @@ $(document).ready(function() {
                 x = Math.ceil(x);
                 canMove = !isBorder(stageMatrix[y][x-1]);
             } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
-                canMove = false;
+                x = Math.ceil(x);
+                y = Math.floor(y);
+                yPlus = y+1;
+                canMove = !(isBorder(stageMatrix[y][x-1]) && isBorder(stageMatrix[yPlus][x-1])); 
             }
         }
 
@@ -203,8 +218,6 @@ $(document).ready(function() {
 
         return {y: centerY, x: centerX};
     }
-
-    window.getCenter = getCenter;
 
     function getMatrixPos(center) {
        var col = (center['x']-8)/16;
@@ -269,6 +282,7 @@ $(document).ready(function() {
     }
 
     function positionPacman() {
+        $('.stage').append('<div class="sprite pacman"></div>');
         var pacman = $('.sprite.pacman');
         var topPos = scaleToGrid(22.5); //starting row
         var leftPos = scaleToGrid(13); //starting col
