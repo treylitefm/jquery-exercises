@@ -54,10 +54,12 @@ $(document).ready(function() {
     var shiftDelta = 4; //px
     var shiftCadence = 20; //ms
     var logCadence = 500; //ms
-    var direction  = 'up'; //'right';
+    var wakaCadence = 100; //ms
+    var direction  = 'right';
     var initialized = false;
 
     var shiftIntervalID;
+    var wakaIntervalID;
 /*
     var logIntervalID = setInterval(function() {
         var sprite = $('.sprite');
@@ -74,6 +76,7 @@ $(document).ready(function() {
                 buildStage(stage0);
                 positionPacman();
                 shiftIntervalID = setInterval(shift, shiftCadence);
+                wakaIntervalID = setInterval(waka, wakaCadence);
                 initialized = true;
             } else {
                 console.log('Stopping');
@@ -104,6 +107,7 @@ $(document).ready(function() {
 
         if (directionReq !== undefined && canMove(sprite, directionReq)['canMove']) { //if passed a new direction and the new direction is able to be moved to, then set old direction to new direction
             direction = directionReq;
+            rotateSprite(sprite, direction);
         } else if (!canMove(sprite, direction)['canMove']) { //if new direction fails, check to see if old direction can be moved to. if cant, return false with no displacement. else continue trucking on
             return false;
         }
@@ -282,7 +286,7 @@ $(document).ready(function() {
     }
 
     function positionPacman() {
-        $('.stage').append('<div class="sprite pacman"></div>');
+        $('.stage').append('<div class="sprite pacman"><div class="top open semi"></div><div class="bottom open semi"></div></div>');
         var pacman = $('.sprite.pacman');
         var topPos = scaleToGrid(22.5); //starting row
         var leftPos = scaleToGrid(13); //starting col
@@ -290,6 +294,30 @@ $(document).ready(function() {
         pacman.css('top', topPos);
         pacman.css('left', leftPos);
         pacman.css('display', 'block');
+    }
+
+    function waka() {
+        if ($('.pacman .semi.open').length == 0) {
+            $('.pacman .semi').addClass('open');
+        } else {
+            $('.pacman .semi.open').removeClass('open');
+        }
+    }
+
+    function rotateSprite(sprite, dir) {
+        var rotation;
+
+        if (dir == 'up') {
+            rotation = '270'; 
+        } else if (dir == 'right') {
+            rotation = '0';
+        } else if (dir == 'down') {
+            rotation = '90';
+        } else if (dir == 'left') {
+            rotation = '180';
+        }
+
+        sprite.css('transform', 'rotate('+rotation+'deg)');
     }
 
     function scaleToGrid(n) {

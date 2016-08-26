@@ -17,7 +17,7 @@ body {
 .stage {
     width: 448px;
     height: 496px;
-    background-color: white;
+    background-color: black;
     margin: 0 auto;
     position: relative;
     font-size: 0;
@@ -30,11 +30,13 @@ body {
 }
 
 .border {
-    background-color: blue;
+    background-color: lightblue;
 }
 
 .pellet {
     background-color: yellow;
+    -webkit-clip-path: circle(25% at 50% 50%);
+    clip-path: circle(25% at 50% 50%);
 }
 
 .super-pellet {
@@ -58,18 +60,52 @@ body {
 }
 
 .sprite {
-    height: 32px;
-    width: 32px;
     position: absolute;
     left: 0;
     top: 0;
 }
 
-.sprite.pacman {
-    background-color: gold; 
-    -webkit-clip-path: circle(50% at 50% 50%);
-    clip-path: circle(50% at 50% 50%);
-    display: none;
+.pacman {
+    display: inline-block;
+}
+
+.pacman .top.open {
+    transform: rotate(-30deg);
+}
+
+.pacman .bottom {
+    transform: rotate(180deg);
+}
+
+.pacman .bottom.open {
+    transform: rotate(210deg);
+}
+
+.pacman .semi {
+    height: 16px;
+    width: 32px;
+    background-color: gold;
+    display: block;
+    border-radius: 90px 90px 0 0;
+    -moz-border-radius: 90px 90px 0 0;
+    -webkit-border-radius: 90px 90px 0 0;
+    transition: 0.1s;
+}
+
+.pacman.up {
+    transform: rotate(270deg);
+}
+
+.pacman.right {
+    transform: rotate(0deg);
+}
+
+.pacman.down {
+    transform: rotate(90deg);
+}
+
+.pacman.left {
+    transform: rotate(180deg);
 }
 
 .log {
