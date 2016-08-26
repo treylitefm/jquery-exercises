@@ -35,8 +35,8 @@ body {
 
 .pellet {
     background-color: yellow;
-    -webkit-clip-path: circle(25% at 50% 50%);
-    clip-path: circle(25% at 50% 50%);
+    -webkit-clip-path: circle(15% at 50% 50%);
+    clip-path: circle(15% at 50% 50%);
 }
 
 .super-pellet {
@@ -82,8 +82,8 @@ body {
 }
 
 .pacman .semi {
-    height: 16px;
-    width: 32px;
+    height: 8px;
+    width: 16px;
     background-color: gold;
     display: block;
     border-radius: 90px 90px 0 0;

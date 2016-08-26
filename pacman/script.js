@@ -76,6 +76,7 @@ $(document).ready(function() {
                 buildStage(stage0);
                 positionPacman();
                 $('audio.start')[0].play();
+                initialized = true;
                 $('audio.start').on('ended', function() {
                     shiftIntervalID = setInterval(shift, shiftCadence);
                     wakaIntervalID = setInterval(waka, wakaCadence);
@@ -83,7 +84,6 @@ $(document).ready(function() {
                     /*setTimeout(function() {
                         $('audio.waka1')[0].play();
                     }, 525);*/ //TODO:delete or fix sync between both audio files
-                    initialized = true;
                 });
             } else {
                 console.log('Stopping');
@@ -295,8 +295,8 @@ $(document).ready(function() {
     function positionPacman() {
         $('.stage').append('<div class="sprite pacman"><div class="top open semi"></div><div class="bottom open semi"></div></div>');
         var pacman = $('.sprite.pacman');
-        var topPos = scaleToGrid(22.5); //starting row
-        var leftPos = scaleToGrid(13); //starting col
+        var topPos = scaleToGrid(23); //starting row
+        var leftPos = scaleToGrid(13.5); //starting col
 
         pacman.css('top', topPos);
         pacman.css('left', leftPos);
