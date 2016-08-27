@@ -3,17 +3,17 @@
     <style>
         .stage {
             background: black;
-            height: 500px;
-            width: 500px;
+            height: 16px;
+            width: 16px;
         }
 
         .sprite.ghost {
-            height: 320px;
-            width: 320px;
-            border-top-left-radius: 160px;
-            border-top-right-radius: 160px;
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
+            height: 16px;
+            width: 16px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            border-bottom-left-radius: .2px;
+            border-bottom-right-radius: .2px;
             -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 100%, 80% 70%, 65% 100%, 50% 70%, 35% 100%, 20% 70%, 5% 100%, 0 100%);
             clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 100%, 80% 70%, 65% 100%, 50% 70%, 35% 100%, 20% 70%, 5% 100%, 0 100%);
             position: relative;
@@ -167,17 +167,17 @@
         .sprite.ghost.scared .mouth {
             display: block;
             position: absolute;
-            left: 50px;
-            top: 180px;
+            left: 2.5px;
+            top: 9px;
         }
 
         .sprite.ghost.scared .mouth0, .sprite.ghost .mouth1 {
-            border: solid 5px;
-            border-radius: 50px;
+            border: solid 1px;
+            border-radius: 2.5px;
             border-color: white;
             display: inline-block;
-            height: 20px;
-            width: 30px;
+            height: 1px;
+            width: 1.5px;
         } 
         .sprite.ghost.scared .mouth0 {
             border-bottom: none;

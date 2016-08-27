@@ -75,11 +75,14 @@ $(document).ready(function() {
             if (!initialized) {
                 buildStage(stage0);
                 positionPacman();
+                positionGhosts();
                 $('audio.start')[0].play();
                 initialized = true;
                // $('audio.start').on('ended', function() {
                     shiftIntervalID = setInterval(shift, shiftCadence);
                     wakaIntervalID = setInterval(waka, wakaCadence);
+                    ghostShiftIntervalID = setInterval(ghostShift); //TODO: figure out how tf this is going to work
+                    ghostStepIntervalID = setInterval(ghostStep); //TODO: figure out how tf this is going to work
                     $('audio.waka0')[0].play();
                     /*setTimeout(function() {
                         $('audio.waka1')[0].play();
@@ -114,7 +117,7 @@ $(document).ready(function() {
 
         if (directionReq !== undefined && canMove(sprite, directionReq)['canMove']) { //if passed a new direction and the new direction is able to be moved to, then set old direction to new direction
             direction = directionReq;
-            rotateSprite(sprite, direction);
+            rotatePacman(sprite, direction);
         } else if (!canMove(sprite, direction)['canMove']) { //if new direction fails, check to see if old direction can be moved to. if cant, return false with no displacement. else continue trucking on
             return false;
         }
@@ -276,7 +279,7 @@ $(document).ready(function() {
         }
     }
 
-    function rotateSprite(sprite, dir) {
+    function rotatePacman(sprite, dir) {
         var rotation;
 
         if (dir == 'up') {
@@ -290,6 +293,43 @@ $(document).ready(function() {
         }
 
         sprite.css('transform', 'rotate('+rotation+'deg)');
+    }
+
+    function turnGhost(ghost, dir) {
+        ghost.removeClass('dir-right');
+        ghost.removeClass('dir-up');
+        ghost.removeClass('dir-down');
+
+        if (dir == 'left') {
+            //do nothing, the absence of dir-* implies left
+        } else if (dir == 'up') {
+            ghost.addClass('dir-up');
+        } else if (dir == 'right') {
+            ghost.addClass('dir-right');
+        } else if (dir == 'down') {
+            ghost.addClass('dir-down');
+        }
+    }
+
+    function ghostStepAndScared() {
+        var ghost = $('.ghost');
+
+        if (ghost.hasClass('step')) {
+            ghost.removeClass('step');
+        } else {
+            ghost.addClass('step');
+        }
+
+        if (ghost.hasClass('scared')) {
+            var mouth0 = $('.sprite.ghost .mouth0');
+            var mouth1 = $('.sprite.ghost .mouth1');
+
+            mouth0.removeClass('mouth0');
+            mouth0.addClass('mouth1');
+            mouth1.removeClass('mouth1');
+            mouth1.addClass('mouth0');
+
+        }
     }
 
     function scaleToGrid(n) {
