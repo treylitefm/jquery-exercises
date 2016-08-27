@@ -51,8 +51,8 @@ $(document).ready(function() {
     ];
 
 
-    var shiftDelta = 4; //px
-    var shiftCadence = 20; //ms
+    var shiftDelta = 8; //px
+    var shiftCadence = 50; //ms
     var logCadence = 500; //ms
     var wakaCadence = 100; //ms
     var direction  = 'right';
@@ -77,14 +77,14 @@ $(document).ready(function() {
                 positionPacman();
                 $('audio.start')[0].play();
                 initialized = true;
-                $('audio.start').on('ended', function() {
+               // $('audio.start').on('ended', function() {
                     shiftIntervalID = setInterval(shift, shiftCadence);
                     wakaIntervalID = setInterval(waka, wakaCadence);
                     $('audio.waka0')[0].play();
                     /*setTimeout(function() {
                         $('audio.waka1')[0].play();
                     }, 525);*/ //TODO:delete or fix sync between both audio files
-                });
+               // });
             } else {
                 console.log('Stopping');
                 clearInterval(shiftIntervalID);
@@ -105,7 +105,7 @@ $(document).ready(function() {
 
         directionReq = getKeyName(e);
         shift(directionReq);
-        logKeyPressEvent(e);
+        //logKeyPressEvent(e);
     });
 
     function shift(directionReq) {
@@ -139,9 +139,10 @@ $(document).ready(function() {
 
         var x = matrixPos['x'];
         var y = matrixPos['y'];
-        var xPlus; // used for calculating the two blocks on either side of intersecting boundary
-        var yPlus; // used for calculating the two blocks on either side of intersecting boundary
-        //debugger;
+        var xPlus; // used for calculating the two blocks on either side of intersection boundary
+        var yPlus; // used for calculating the two blocks on either side of intersection boundary
+        
+        //debugger; //TODO: duh-lete
 
         if (dir == 'up') {
             if (Number.isInteger(x) && Number.isInteger(y)) {
@@ -149,31 +150,13 @@ $(document).ready(function() {
             } else if (Number.isInteger(x) && !Number.isInteger(y)) {
                 y = Math.ceil(y);
                 canMove = !isBorder(stageMatrix[y-1][x]);
-            } else if (!Number.isInteger(x) && Number.isInteger(y)) {
-                x = Math.floor(x);
-                xPlus = x+1;
-                canMove = !(isBorder(stageMatrix[y-1][x]) && isBorder(stageMatrix[y-1][xPlus])); 
-            } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
-                y = Math.ceil(y);
-                x = Math.floor(x);
-                xPlus = x+1;
-                canMove = !(isBorder(stageMatrix[y-1][x]) || isBorder(stageMatrix[y-1][xPlus])); 
             }
         } else if (dir == 'right') {
             if (Number.isInteger(x) && Number.isInteger(y)) {
                 canMove = !isBorder(stageMatrix[y][x+1]);
-            } else if (Number.isInteger(x) && !Number.isInteger(y)) {
-                y = Math.floor(y);
-                yPlus = y+1;
-                canMove = !(isBorder(stageMatrix[y][x+1]) && isBorder(stageMatrix[yPlus][x+1])); 
             } else if (!Number.isInteger(x) && Number.isInteger(y)) {
                 x = Math.floor(x);
                 canMove = !isBorder(stageMatrix[y][x+1]);
-            } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
-                x = Math.floor(x);
-                y = Math.floor(y);
-                yPlus = y+1;
-                canMove = !(isBorder(stageMatrix[y][x+1]) && isBorder(stageMatrix[yPlus][x+1])); 
             }
         } else if (dir == 'down') {
             if (Number.isInteger(x) && Number.isInteger(y)) {
@@ -181,31 +164,13 @@ $(document).ready(function() {
             } else if (Number.isInteger(x) && !Number.isInteger(y)) {
                 y = Math.floor(y);
                 canMove = !isBorder(stageMatrix[y+1][x]);
-            } else if (!Number.isInteger(x) && Number.isInteger(y)) {
-                x = Math.floor(x);
-                xPlus = x+1;
-                canMove = !(isBorder(stageMatrix[y+1][x]) && isBorder(stageMatrix[y+1][xPlus])); 
-            } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
-                y = Math.floor(y);
-                x = Math.floor(x);
-                xPlus = x+1;
-                canMove = !(isBorder(stageMatrix[y+1][x]) && isBorder(stageMatrix[y+1][xPlus])); 
             }
         } else if (dir == 'left') {
             if (Number.isInteger(x) && Number.isInteger(y)) {
                 canMove = !isBorder(stageMatrix[y][x-1]);
-            } else if (Number.isInteger(x) && !Number.isInteger(y)) {
-                y = Math.floor(y);
-                yPlus = y+1;
-                canMove = !(isBorder(stageMatrix[y][x-1]) && isBorder(stageMatrix[yPlus][x-1])); 
             } else if (!Number.isInteger(x) && Number.isInteger(y)) {
                 x = Math.ceil(x);
                 canMove = !isBorder(stageMatrix[y][x-1]);
-            } else if (!Number.isInteger(x) && !Number.isInteger(y)) {
-                x = Math.ceil(x);
-                y = Math.floor(y);
-                yPlus = y+1;
-                canMove = !(isBorder(stageMatrix[y][x-1]) && isBorder(stageMatrix[yPlus][x-1])); 
             }
         }
 
