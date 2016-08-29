@@ -1,13 +1,13 @@
 $(document).ready(function() {
 
     var stageMatrix; //set in buildStage; separate from stage0 just in case more stages (stage1, stage2, etc) are added later
-    // 0 = border, 1 = pellet, 2 super pellet, 3 ghost, 4 fruit, 5 portal, 6 nothing
+    // 0 = border, 1 = pellet, 2 power pellet, 3 ghost, 4 fruit, 5 portal, 6 nothing
     var stage0 = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0],
 
     [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0],
-    [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0],
+    [0,2,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,2,0],
     [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0],
 
     [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
@@ -36,7 +36,7 @@ $(document).ready(function() {
     [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0],
     [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0],
 
-    [0,1,1,1,0,0,1,1,1,1,1,1,1,6,6,1,1,1,1,1,1,1,0,0,1,1,1,0],
+    [0,2,1,1,0,0,1,1,1,1,1,1,1,6,6,1,1,1,1,1,1,1,0,0,1,1,2,0],
 
     [0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0],
     [0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0],
@@ -51,15 +51,17 @@ $(document).ready(function() {
     ];
 
 
-    var shiftDelta = 8; //px
+    var shiftDelta = 4; //px
     var shiftCadence = 50; //ms
     var logCadence = 500; //ms
     var wakaCadence = 100; //ms
+    var powerPelletPulseCadence = 500; //ms
     var direction  = 'right';
     var initialized = false;
 
     var shiftIntervalID;
     var wakaIntervalID;
+    var powerPelletPulseIntervalID;
 /*
     var logIntervalID = setInterval(function() {
         var sprite = $('.sprite');
@@ -76,17 +78,15 @@ $(document).ready(function() {
                 buildStage(stage0);
                 positionPacman();
                 positionGhosts();
-                $('audio.start')[0].play();
+//                $('audio.start')[0].play();
                 initialized = true;
                // $('audio.start').on('ended', function() {
                     shiftIntervalID = setInterval(shift, shiftCadence);
                     wakaIntervalID = setInterval(waka, wakaCadence);
-                    ghostShiftIntervalID = setInterval(ghostShift); //TODO: figure out how tf this is going to work
-                    ghostStepIntervalID = setInterval(ghostStep); //TODO: figure out how tf this is going to work
-                    $('audio.waka0')[0].play();
-                    /*setTimeout(function() {
-                        $('audio.waka1')[0].play();
-                    }, 525);*/ //TODO:delete or fix sync between both audio files
+                    powerPelletPulseIntervalID = setInterval(powerPelletPulse, powerPelletPulseCadence);
+                    //ghostShiftIntervalID = setInterval(ghostShift); //TODO: figure out how tf this is going to work
+                    //ghostStepIntervalID = setInterval(ghostStep); //TODO: figure out how tf this is going to work
+                    //$('audio.waka0')[0].play();
                // });
             } else {
                 console.log('Stopping');
@@ -115,11 +115,17 @@ $(document).ready(function() {
         var sprite = $('.sprite');
         var move;
 
-        if (directionReq !== undefined && canMove(sprite, directionReq)['canMove']) { //if passed a new direction and the new direction is able to be moved to, then set old direction to new direction
-            direction = directionReq;
-            rotatePacman(sprite, direction);
-        } else if (!canMove(sprite, direction)['canMove']) { //if new direction fails, check to see if old direction can be moved to. if cant, return false with no displacement. else continue trucking on
-            return false;
+        if (directionReq !== undefined ) { //if passed a new direction and the new direction is able to be moved to, then set old direction to new direction
+            move = canMove(sprite, directionReq);
+            if (move['canMove']) {
+                direction = directionReq;
+                rotatePacman(sprite, direction);
+            }
+        } else {
+            move = canMove(sprite, direction);
+            if (!move['canMove']) { //if new direction fails, check to see if old direction can be moved to. if cant, return false with no displacement. else continue trucking on
+                return false;
+            }
         }
 
         if (direction == 'left') {
@@ -132,56 +138,65 @@ $(document).ready(function() {
             sprite.animate({'top': '+='+shiftDelta}, 0, 'linear');
         }
 
-        collide(direction);
+        if (move['collectPellet'] || move['collectPowerPellet']) {
+            collectPellet(move['moveTo'], move['collectPowerPellet']);
+        }
     }
 
     function canMove(el, dir) { //collision
         var center = getCenter(el);
         var matrixPos = getMatrixPos(center);
         var canMove = false;
+        var moveTo;
 
         var x = matrixPos['x'];
         var y = matrixPos['y'];
-        var xPlus; // used for calculating the two blocks on either side of intersection boundary
-        var yPlus; // used for calculating the two blocks on either side of intersection boundary
+        var collectPellet = false;
+        var collectPowerPellet = false;
+        var block;
         
         //debugger; //TODO: duh-lete
 
         if (dir == 'up') {
-            if (Number.isInteger(x) && Number.isInteger(y)) {
-                canMove = !isBorder(stageMatrix[y-1][x]);
-            } else if (Number.isInteger(x) && !Number.isInteger(y)) {
+            if ((Number.isInteger(x) && !Number.isInteger(y)) || (Number.isInteger(x) && Number.isInteger(y))) {
                 y = Math.ceil(y);
-                canMove = !isBorder(stageMatrix[y-1][x]);
-            }
+                block = getBlockType(stageMatrix[y-1][x]);
+                moveTo = {x: x, y: y-1};
+            } 
         } else if (dir == 'right') {
-            if (Number.isInteger(x) && Number.isInteger(y)) {
-                canMove = !isBorder(stageMatrix[y][x+1]);
-            } else if (!Number.isInteger(x) && Number.isInteger(y)) {
+            if ((!Number.isInteger(x) && Number.isInteger(y)) || (Number.isInteger(x) && Number.isInteger(y))) {
                 x = Math.floor(x);
-                canMove = !isBorder(stageMatrix[y][x+1]);
+                block = getBlockType(stageMatrix[y][x+1]);
+                moveTo = {x: x+1, y: y};
             }
         } else if (dir == 'down') {
-            if (Number.isInteger(x) && Number.isInteger(y)) {
-                canMove = !isBorder(stageMatrix[y+1][x]);
-            } else if (Number.isInteger(x) && !Number.isInteger(y)) {
+            if ((Number.isInteger(x) && !Number.isInteger(y)) || (Number.isInteger(x) && Number.isInteger(y))) {
                 y = Math.floor(y);
-                canMove = !isBorder(stageMatrix[y+1][x]);
+                block = getBlockType(stageMatrix[y+1][x]);
+                moveTo = {x: x, y: y+1};
             }
         } else if (dir == 'left') {
-            if (Number.isInteger(x) && Number.isInteger(y)) {
-                canMove = !isBorder(stageMatrix[y][x-1]);
-            } else if (!Number.isInteger(x) && Number.isInteger(y)) {
+            if ((!Number.isInteger(x) && Number.isInteger(y)) || (Number.isInteger(x) && Number.isInteger(y))) {
                 x = Math.ceil(x);
-                canMove = !isBorder(stageMatrix[y][x-1]);
+                block = getBlockType(stageMatrix[y][x-1]);
+                moveTo = {x: x-1, y: y};
             }
+        }
+        
+        if (block !== undefined) {
+            canMove = block !== 'border';
+            collectPellet = block == 'pellet';
+            collectPowerPellet = block == 'power-pellet';
         }
 
         return {
             el: el,
             canMove: canMove,
             center: center,
-            direction: dir
+            direction: dir,
+            collectPellet: collectPellet,
+            collectPowerPellet: collectPowerPellet,
+            moveTo: moveTo
         }
     }
 
@@ -205,8 +220,26 @@ $(document).ready(function() {
        return { y: row, x: col }
     }
 
-    function isBorder(i) {
-        return i === 0;
+    function getBlockType(block) {
+        var type;
+
+        if (block == 0) {
+            type = 'border'; 
+        } else if (block == 1) {
+            type = 'pellet';
+        } else if (block == 2) {
+            type = 'power-pellet';
+        } else if (block == 3) {
+            type = 'ghost';
+        } else if (block == 4) {
+            type = 'fruit';
+        } else if (block == 5) {
+            type = 'portal';
+        } else if (block == 6) {
+            type = 'empty'
+        }
+
+        return type;
     }
 
     function getKeyName(e) {
@@ -226,34 +259,12 @@ $(document).ready(function() {
     }
 
     function buildStage(stageToBuild) {
-        function getBlockType(block) {
-            var type;
-
-            if (block == 0) {
-               type = 'border'; 
-            } else if (block == 1) {
-                type = 'pellet';
-            } else if (block == 2) {
-                type = 'super-pellet';
-            } else if (block == 3) {
-                type = 'ghost';
-            } else if (block == 4) {
-                type = 'fruit';
-            } else if (block == 5) {
-                type = 'portal';
-            } else if (block == 6) {
-                type = 'empty'
-            }
-
-            return type;
-        }
-
         var block;
         
         for (var i = 0; i < stageToBuild.length; i++) {
             for (var j = 0; j < stageToBuild[i].length; j++) {
                 block = getBlockType(stageToBuild[i][j]);
-                $('.stage').append('<div class="block '+block+'">block</div>');
+                $('.stage').append('<div class="block block'+i+'-'+j+' '+block+'">block</div>');
             }
         }
 
@@ -269,6 +280,22 @@ $(document).ready(function() {
         pacman.css('top', topPos);
         pacman.css('left', leftPos);
         pacman.css('display', 'block');
+    }
+
+    function positionGhosts() {
+
+    }
+
+    function collectPellet(point, isPowerPellet) {
+        stageMatrix[point['y']][point['x']] = 6;
+        var pellet = $('.block'+point['y']+'-'+point['x']);
+        pellet.addClass('eaten');
+
+        if (isPowerPellet) {
+            pellet.removeClass('power-pellet');
+            //activate scared mode
+        } else {
+        }
     }
 
     function waka() {
@@ -334,6 +361,16 @@ $(document).ready(function() {
 
     function scaleToGrid(n) {
         return n*16;
+    }
+
+    function powerPelletPulse() {
+        var powerPellets = $('.power-pellet');
+        
+        if (powerPellets.hasClass('pulse')) {
+            powerPellets.removeClass('pulse');
+        } else {
+            powerPellets.addClass('pulse');
+        }
     }
 
     function logKeyPressEvent(e) {

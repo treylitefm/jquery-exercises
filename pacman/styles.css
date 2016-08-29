@@ -30,17 +30,31 @@ body {
 }
 
 .border {
-    background-color: lightblue;
+    background-color: blue;
 }
 
 .pellet {
-    background-color: yellow;
+    background-color: white;
     -webkit-clip-path: circle(15% at 50% 50%);
     clip-path: circle(15% at 50% 50%);
+    transition: all .5s ease;
 }
 
-.super-pellet {
-    background-color: gold;
+.pellet.eaten, .power-pellet.eaten {
+    -webkit-clip-path: circle(0 at 50% 50%);
+    clip-path: circle(0 at 50% 50%);
+}
+
+.power-pellet {
+    background-color: white;
+    -webkit-clip-path: circle(35% at 50% 50%);
+    clip-path: circle(35% at 50% 50%);
+    transition: all .5s ease;
+}
+
+.power-pellet.pulse {
+    -webkit-clip-path: circle(15% at 50% 50%);
+    clip-path: circle(15% at 50% 50%);
 }
 
 .ghost {
