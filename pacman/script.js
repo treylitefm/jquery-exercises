@@ -85,7 +85,7 @@ $(document).ready(function() {
                     wakaIntervalID = setInterval(waka, wakaCadence);
                     powerPelletPulseIntervalID = setInterval(powerPelletPulse, powerPelletPulseCadence);
                     //ghostShiftIntervalID = setInterval(ghostShift); //TODO: figure out how tf this is going to work
-                    //ghostStepIntervalID = setInterval(ghostStep); //TODO: figure out how tf this is going to work
+                    ghostStepIntervalID = setInterval(ghostStepAndScared, 100);
                     //$('audio.waka0')[0].play();
                // });
             } else {
