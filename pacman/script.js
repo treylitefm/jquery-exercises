@@ -219,7 +219,7 @@ $(document).ready(function() {
         var centerY = (position['top']+position['top']+el.height())/2;
         var centerX = (position['left']+position['left']+el.width())/2;
 
-        return {y: centerY, x: centerX};
+        return {y: centerY.toFixed(2), x: centerX.toFixed(2)};
     }
 
     function getMatrixPos(center) {
@@ -323,9 +323,9 @@ $(document).ready(function() {
 
     function teleport(sprite, point) {
         if (point['x'] == stageMatrix[0].length-1) {
-            sprite.css('left', 0);
+            sprite.css('left', 8);
         } else if (point['x'] == 0) {
-            sprite.css('left', stageMatrix[0].length*16);
+            sprite.css('left', (stageMatrix[0].length-1)*16+8);
         }
     }
 
