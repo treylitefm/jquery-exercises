@@ -50,7 +50,6 @@ $(document).ready(function() {
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
 
-
     var shiftDelta = 4; //px
     var shiftCadence = 50; //ms
     var logCadence = 500; //ms
@@ -90,17 +89,17 @@ $(document).ready(function() {
                 clearInterval(shiftIntervalID);
                 logCanMove($('.pacman'));
             }
-            return false; 
+            return false;
         }
 
         if (e.which == 82) {
             console.log('Refreshing');
             location.reload();
-            return false; 
+            return false;
         }
 
         if (e.which < 37 || e.which > 40) {
-            return false; 
+            return false;
         }
 
         directionReq = getKeyName(e);
@@ -161,7 +160,7 @@ $(document).ready(function() {
         var block;
         var blockCenter;
         var teleport;
-        
+
         if (!Number.isInteger(x) && x-Math.floor(x) == 0.5) {
             blockCenter = true;
         } else if (!Number.isInteger(y) && y-Math.floor(y) == 0.5) {
@@ -173,7 +172,7 @@ $(document).ready(function() {
                 y = Math.ceil(y);
                 block = getBlockType(stageMatrix[y-1][x]);
                 moveTo = {x: x, y: y-1};
-            } 
+            }
         } else if (dir == 'right') {
             if ((!Number.isInteger(x) && Number.isInteger(y)) || (Number.isInteger(x) && Number.isInteger(y))) {
                 x = Math.floor(x);
@@ -193,7 +192,7 @@ $(document).ready(function() {
                 moveTo = {x: x-1, y: y};
             }
         }
-        
+
         if (block !== undefined) {
             canMove = block !== 'border';
             if (blockCenter) {
@@ -234,7 +233,7 @@ $(document).ready(function() {
         var type;
 
         if (block == 0) {
-            type = 'border'; 
+            type = 'border';
         } else if (block == 1) {
             type = 'pellet';
         } else if (block == 2) {
@@ -270,7 +269,7 @@ $(document).ready(function() {
 
     function buildStage(stageToBuild) {
         var block;
-        
+
         for (var i = 0; i < stageToBuild.length; i++) {
             for (var j = 0; j < stageToBuild[i].length; j++) {
                 block = getBlockType(stageToBuild[i][j]);
@@ -282,8 +281,12 @@ $(document).ready(function() {
     }
 
     function positionPacman() {
-        $('.stage').append('<div class="sprite pacman"><div class="top open semi"></div><div class="bottom open semi"></div></div>');
-        var pacman = $('.sprite.pacman');
+        var pacman = $('<div />', {class: 'sprite pacman'});
+        pacman.append($('<div />', {class: 'top open semi'}));
+        pacman.append($('<div />', {class: 'bottom open semi'}));
+        $('.stage').append(pacman);
+
+
         var topPos = scaleToGrid(23); //starting row
         var leftPos = scaleToGrid(13.5); //starting col
 
@@ -293,7 +296,29 @@ $(document).ready(function() {
     }
 
     function positionGhosts() {
+        var ghost = $('<div />', {class: 'sprite ghost inky'});
+        ghost.append($('<div />', {class: 'eye left'}));
+        ghost.append($('<div />', {class: 'eye right'}));
+        ghost.append($('<div />', {class: 'pupil left'}));
+        ghost.append($('<div />', {class: 'pupil right'}));
+        var mouth;
+        ghost.append(mouth = $('<div />', {class: 'mouth'}));
+        mouth.append('<div />', {class: 'mouth0'});
+        mouth.append('<div />', {class: 'mouth1'});
+        mouth.append('<div />', {class: 'mouth0'});
+        mouth.append('<div />', {class: 'mouth1'});
+        mouth.append('<div />', {class: 'mouth0'});
+        mouth.append('<div />', {class: 'mouth1'});
+        mouth.append('<div />', {class: 'mouth0'});
 
+        $('.stage').append(ghost);
+
+        var topPos = scaleToGrid(11); //starting row
+        var leftPos = scaleToGrid(13.5); //starting col
+
+        ghost.css('top', topPos);
+        ghost.css('left', leftPos);
+        ghost.css('display', 'block');
     }
 
     function teleport(sprite, point) {
@@ -329,7 +354,7 @@ $(document).ready(function() {
         var rotation;
 
         if (dir == 'up') {
-            rotation = '270'; 
+            rotation = '270';
         } else if (dir == 'right') {
             rotation = '0';
         } else if (dir == 'down') {
@@ -384,7 +409,7 @@ $(document).ready(function() {
 
     function powerPelletPulse() {
         var powerPellets = $('.power-pellet');
-        
+
         if (powerPellets.hasClass('pulse')) {
             powerPellets.removeClass('pulse');
         } else {
@@ -404,7 +429,7 @@ $(document).ready(function() {
     function logDelta(x, y) {
         $('.log-right .event').prepend('<p>x: '+x+' y: '+y+'</p>');
     }
-    
+
     function logCanMove(el) {
         var moveUp = canMove(el, 'up')['canMove'];
         var moveRight = canMove(el, 'right')['canMove'];

@@ -36,7 +36,7 @@ body {
 }
 
 .border {
-    background-color: blue;
+    background-color: white;
 }
 
 .pellet {
@@ -55,10 +55,6 @@ body {
 .power-pellet.pulse {
     -webkit-clip-path: circle(15% at 50% 50%);
     clip-path: circle(15% at 50% 50%);
-}
-
-.ghost {
-    background-color: white;
 }
 
 .fruit {
@@ -131,7 +127,7 @@ body {
     border-bottom-right-radius: .2px;
     -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 100%, 80% 70%, 65% 100%, 50% 70%, 35% 100%, 20% 70%, 5% 100%, 0 100%);
     clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 100%, 80% 70%, 65% 100%, 50% 70%, 35% 100%, 20% 70%, 5% 100%, 0 100%);
-    position: relative;
+    position: absolute;
 }
 
 .inky {
