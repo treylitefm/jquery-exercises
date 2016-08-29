@@ -66,7 +66,8 @@ $(document).ready(function() {
         direction: 'right',
         shiftDelta: 4, //px
         nextMove: undefined,
-        isGhost: false
+        isGhost: false,
+        waka: true
     }
     
     var inky = {
@@ -147,10 +148,12 @@ $(document).ready(function() {
         } else {
             move = canMove(sprite, spriteData['direction']);
             if (!move['canMove']) { //if new direction fails, check to see if old direction can be moved to. if cant, return false with no displacement. else continue trucking on
+                spriteData['waka'] = spriteData['isGhost'] ? undefined : false; //stop the waka
                 return false;
             }
         }
 
+        spriteData['waka'] = spriteData['isGhost'] ? undefined : true; //if waka isnt running, start it back up
         spriteData['nextMove'] = undefined; //always clear queued move
 
         if (move['teleport']) {
@@ -172,11 +175,12 @@ $(document).ready(function() {
         }
     }
 
-    function canMove(el, dir) { //collision
-        var center = getCenter(el);
+    function canMove(sprite, dir) { //collision
+        var center = getCenter(sprite);
         var matrixPos = getMatrixPos(center);
         var canMove = false;
         var moveTo;
+        var spriteData = sprite.data('data');
 
         var x = matrixPos['x'];
         var y = matrixPos['y'];
@@ -222,14 +226,14 @@ $(document).ready(function() {
         if (block !== undefined) {
             canMove = block !== 'border';
             if (blockCenter) {
-                collectPellet = block == 'pellet';
-                collectPowerPellet = block == 'power-pellet';
+                collectPellet = (block == 'pellet' && !spriteData['isGhost']);
+                collectPowerPellet = (block == 'power-pellet' && !spriteData['isGhost']);
                 teleport = block == 'portal';
             }
         }
 
         return {
-            el: el,
+            sprite: sprite,
             canMove: canMove,
             center: center,
             direction: dir,
@@ -240,10 +244,10 @@ $(document).ready(function() {
         }
     }
 
-    function getCenter(el) {
-        var position = el.position();
-        var centerY = (position['top']+position['top']+el.height())/2;
-        var centerX = (position['left']+position['left']+el.width())/2;
+    function getCenter(sprite) {
+        var position = sprite.position();
+        var centerY = (position['top']+position['top']+sprite.height())/2;
+        var centerX = (position['left']+position['left']+sprite.width())/2;
 
         return {y: centerY.toFixed(2), x: centerX.toFixed(2)};
     }
@@ -359,7 +363,7 @@ $(document).ready(function() {
         sprite.css('left', leftPos);
         sprite.css('display', 'block');
 
-        sprite.data('data', sprite);
+        sprite.data('data', inky);
     }
 
     function teleport(sprite, point) {
@@ -389,6 +393,12 @@ $(document).ready(function() {
     }
 
     function waka() {
+        var waka = $('.pacman').data('data')['waka'];
+
+        if (!waka) {
+            return false;
+        }
+
         if ($('.pacman .semi.open').length == 0) {
             $('.pacman .semi').addClass('open');
         } else {
