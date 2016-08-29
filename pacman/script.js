@@ -129,6 +129,10 @@ $(document).ready(function() {
             }
         }
 
+        if (move['teleport']) {
+            teleport(sprite, move['moveTo']);
+        }
+
         if (direction == 'left') {
             sprite.animate({'left': '-='+shiftDelta}, 0, 'linear');
         } else if (direction == 'up') {
@@ -156,6 +160,7 @@ $(document).ready(function() {
         var collectPowerPellet = false;
         var block;
         var blockCenter;
+        var teleport;
         
         if (!Number.isInteger(x) && x-Math.floor(x) == 0.5) {
             blockCenter = true;
@@ -194,6 +199,7 @@ $(document).ready(function() {
             if (blockCenter) {
                 collectPellet = block == 'pellet';
                 collectPowerPellet = block == 'power-pellet';
+                teleport = block == 'portal';
             }
         }
 
@@ -204,7 +210,8 @@ $(document).ready(function() {
             direction: dir,
             collectPellet: collectPellet,
             collectPowerPellet: collectPowerPellet,
-            moveTo: moveTo
+            moveTo: moveTo,
+            teleport: teleport
         }
     }
 
@@ -287,6 +294,14 @@ $(document).ready(function() {
 
     function positionGhosts() {
 
+    }
+
+    function teleport(sprite, point) {
+        if (point['x'] == stageMatrix[0].length-1) {
+            sprite.css('left', 0);
+        } else if (point['x'] == 0) {
+            sprite.css('left', stageMatrix[0].length*16);
+        }
     }
 
     function collectPellet(point, isPowerPellet) {
