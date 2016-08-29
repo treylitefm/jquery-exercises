@@ -64,16 +64,7 @@ $(document).ready(function() {
     var powerPelletPulseIntervalID;
 
     var fired = false; //keeps track of whether a keypress has been registered so that it can fire more than once
-/*
-    var logIntervalID = setInterval(function() {
-        var sprite = $('.sprite');
-        center = getCenter(sprite);
 
-        logDelta(center['x'], center['y']);
-        logCanMove(sprite);
-    }, logCadence);
-
-*/
     $(document).on('keydown', function(e) {
         if (fired) {
             return false; //ignore
@@ -164,8 +155,13 @@ $(document).ready(function() {
         var collectPellet = false;
         var collectPowerPellet = false;
         var block;
+        var blockCenter;
         
-        //debugger; //TODO: duh-lete
+        if (!Number.isInteger(x) && x-Math.floor(x) == 0.5) {
+            blockCenter = true;
+        } else if (!Number.isInteger(y) && y-Math.floor(y) == 0.5) {
+            blockCenter = true;
+        }
 
         if (dir == 'up') {
             if ((Number.isInteger(x) && !Number.isInteger(y)) || (Number.isInteger(x) && Number.isInteger(y))) {
@@ -195,8 +191,10 @@ $(document).ready(function() {
         
         if (block !== undefined) {
             canMove = block !== 'border';
-            collectPellet = block == 'pellet';
-            collectPowerPellet = block == 'power-pellet';
+            if (blockCenter) {
+                collectPellet = block == 'pellet';
+                collectPowerPellet = block == 'power-pellet';
+            }
         }
 
         return {
@@ -294,12 +292,13 @@ $(document).ready(function() {
     function collectPellet(point, isPowerPellet) {
         stageMatrix[point['y']][point['x']] = 6;
         var pellet = $('.block'+point['y']+'-'+point['x']);
-        pellet.addClass('eaten');
+        pellet.addClass('empty');
 
         if (isPowerPellet) {
             pellet.removeClass('power-pellet');
             //activate scared mode
         } else {
+            pellet.removeClass('pellet');
         }
     }
 
