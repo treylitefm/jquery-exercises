@@ -20,7 +20,7 @@ $(document).ready(function() {
     [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0],
     [0,6,6,6,6,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,6,6,6,6,0],
     [0,6,6,6,6,0,1,0,0,6,6,6,6,6,6,6,6,6,6,0,0,1,0,6,6,6,6,0],
-    [0,6,6,6,6,0,1,0,0,6,0,0,0,0,0,0,0,0,6,0,0,1,0,6,6,6,6,0],
+    [0,6,6,6,6,0,1,0,0,6,0,0,0,6,6,0,0,0,6,0,0,1,0,6,6,6,6,0],
     [0,0,0,0,0,0,1,0,0,6,0,6,6,6,6,6,6,0,6,0,0,1,0,0,0,0,0,0],
 
     [5,6,6,6,6,6,1,6,6,6,0,6,6,6,6,6,6,0,6,6,6,1,6,6,6,6,6,5], // Center row with teleport
@@ -77,7 +77,9 @@ $(document).ready(function() {
 //                $('audio.start')[0].play();
                 initialized = true;
                // $('audio.start').on('ended', function() {
-                    shiftIntervalID = setInterval(shift, shiftCadence);
+                    shiftIntervalID = setInterval(function() {
+                        shift($('.pacman'));
+                    }, shiftCadence);
                     wakaIntervalID = setInterval(waka, wakaCadence);
                     powerPelletPulseIntervalID = setInterval(powerPelletPulse, powerPelletPulseCadence);
                     //ghostShiftIntervalID = setInterval(ghostShift); //TODO: figure out how tf this is going to work
@@ -103,7 +105,7 @@ $(document).ready(function() {
         }
 
         directionReq = getKeyName(e);
-        shift(directionReq);
+        shift($('.pacman'), directionReq);
         //logKeyPressEvent(e);
     });
 
@@ -111,8 +113,7 @@ $(document).ready(function() {
         fired = false;
     });
 
-    function shift(directionReq) {
-        var sprite = $('.sprite');
+    function shift(sprite, directionReq) {
         var move;
 
         if (directionReq !== undefined ) { //if passed a new direction and the new direction is able to be moved to, then set old direction to new direction
@@ -122,6 +123,7 @@ $(document).ready(function() {
                 rotatePacman(sprite, direction);
             }
         } else {
+            debugger;
             move = canMove(sprite, direction);
             if (!move['canMove']) { //if new direction fails, check to see if old direction can be moved to. if cant, return false with no displacement. else continue trucking on
                 return false;
@@ -284,8 +286,8 @@ $(document).ready(function() {
         var pacman = $('<div />', {class: 'sprite pacman'});
         pacman.append($('<div />', {class: 'top open semi'}));
         pacman.append($('<div />', {class: 'bottom open semi'}));
-        $('.stage').append(pacman);
 
+        $('.stage').append(pacman);
 
         var topPos = scaleToGrid(23); //starting row
         var leftPos = scaleToGrid(13.5); //starting col
