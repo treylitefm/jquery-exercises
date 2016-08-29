@@ -56,6 +56,7 @@ $(document).ready(function() {
     var wakaCadence = 100; //ms
     var powerPelletPulseCadence = 500; //ms
     var direction  = 'right';
+    var nextMove;
     var initialized = false;
 
     var shiftIntervalID;
@@ -72,13 +73,14 @@ $(document).ready(function() {
         if (e.which == 32) {
             if (!initialized) {
                 buildStage(stage0);
-                positionPacman();
                 positionGhosts();
+                positionPacman();
 //                $('audio.start')[0].play();
                 initialized = true;
                // $('audio.start').on('ended', function() {
                     shiftIntervalID = setInterval(function() {
                         shift($('.pacman'));
+                        shift($('.ghost'));
                     }, shiftCadence);
                     wakaIntervalID = setInterval(waka, wakaCadence);
                     powerPelletPulseIntervalID = setInterval(powerPelletPulse, powerPelletPulseCadence);
@@ -105,7 +107,7 @@ $(document).ready(function() {
         }
 
         directionReq = getKeyName(e);
-        shift($('.pacman'), directionReq);
+        changeDirection($('.pacman'), directionReq);
         //logKeyPressEvent(e);
     });
 
@@ -113,17 +115,20 @@ $(document).ready(function() {
         fired = false;
     });
 
-    function shift(sprite, directionReq) {
+    function changeDirection(sprite, dir) {
+        var move = canMove(sprite, dir);
+        nextMove = move['canMove'] ? move : undefined;
+    }
+
+    function shift(sprite) {
         var move;
 
-        if (directionReq !== undefined ) { //if passed a new direction and the new direction is able to be moved to, then set old direction to new direction
-            move = canMove(sprite, directionReq);
-            if (move['canMove']) {
-                direction = directionReq;
-                rotatePacman(sprite, direction);
-            }
+        if (nextMove !== undefined && nextMove['canMove'] == true) { //if passed a new direction and the new direction is able to be moved to, then set old direction to new direction
+            direction = nextMove['direction'];
+            move = nextMove;
+            nextMove['canMove'] = false;
+            rotatePacman(sprite, direction);
         } else {
-            debugger;
             move = canMove(sprite, direction);
             if (!move['canMove']) { //if new direction fails, check to see if old direction can be moved to. if cant, return false with no displacement. else continue trucking on
                 return false;
