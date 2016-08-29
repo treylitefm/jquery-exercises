@@ -62,6 +62,8 @@ $(document).ready(function() {
     var shiftIntervalID;
     var wakaIntervalID;
     var powerPelletPulseIntervalID;
+
+    var fired = false; //keeps track of whether a keypress has been registered so that it can fire more than once
 /*
     var logIntervalID = setInterval(function() {
         var sprite = $('.sprite');
@@ -73,6 +75,10 @@ $(document).ready(function() {
 
 */
     $(document).on('keydown', function(e) {
+        if (fired) {
+            return false; //ignore
+        }
+        fired = true;
         if (e.which == 32) {
             if (!initialized) {
                 buildStage(stage0);
@@ -109,6 +115,10 @@ $(document).ready(function() {
         directionReq = getKeyName(e);
         shift(directionReq);
         //logKeyPressEvent(e);
+    });
+
+    $(document).on('keyup', function(e) {
+        fired = false;
     });
 
     function shift(directionReq) {
@@ -198,11 +208,6 @@ $(document).ready(function() {
             collectPowerPellet: collectPowerPellet,
             moveTo: moveTo
         }
-    }
-
-    function collide(dir) {
-        //check for collision in desired direction
-        return true;
     }
 
     function getCenter(el) {
