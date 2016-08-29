@@ -1,6 +1,5 @@
 $(document).ready(function() {
 
-    var stageMatrix; //set in buildStage; separate from stage0 just in case more stages (stage1, stage2, etc) are added later
     // 0 = border, 1 = pellet, 2 power pellet, 3 ghost, 4 fruit, 5 portal, 6 nothing
     var stage0 = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -50,54 +49,70 @@ $(document).ready(function() {
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
 
-    var shiftDelta = 4; //px
-    var shiftCadence = 50; //ms
-    var logCadence = 500; //ms
-    var wakaCadence = 100; //ms
-    var powerPelletPulseCadence = 500; //ms
-    var direction  = 'right';
-    var nextMove;
-    var initialized = false;
+    var gameManager = {
+        shiftCadence: 50, //ms
+        wakaCadence:  100, //ms
+        powerPelletPulseCadence: 500, //ms
+        initialized: false,
+        shiftIntervalID: undefined,
+        wakaIntervalID: undefined,
+        powerPelletPulseIntervalID: undefined,
+        fired: false, //keeps track of whether a keypress has been registered so that it can fire more than once
+        stageMatrix: undefined //set in buildUrl; separate from stage0 just in case more stages (stage1, stage2, etc) are added later
+    }
 
-    var shiftIntervalID;
-    var wakaIntervalID;
-    var powerPelletPulseIntervalID;
+    var pacman = {
+        name: 'pacman',
+        direction: 'right',
+        shiftDelta: 4, //px
+        nextMove: undefined,
+        isGhost: false
+    }
+    
+    var inky = {
+        name: 'inky',
+//        direction: getRandomDirection(),
+        direction: 'left',
+        shiftDelta: 4, //px
+        nextMove: undefined,
+        isGhost: true
+    }
 
-    var fired = false; //keeps track of whether a keypress has been registered so that it can fire more than once
+    var blinky = {};
+    var pinky = {};
+    var clyde = {};
 
     $(document).on('keydown', function(e) {
-        if (fired) {
+        if (gameManager['fired']) {
             return false; //ignore
         }
-        fired = true;
+        gameManager['fired'] = true;
         if (e.which == 32) {
-            if (!initialized) {
+            if (!gameManager['initialized']) {
                 buildStage(stage0);
                 positionGhosts();
                 positionPacman();
 //                $('audio.start')[0].play();
-                initialized = true;
+                gameManager['initialized'] = true;
                // $('audio.start').on('ended', function() {
-                    shiftIntervalID = setInterval(function() {
+                    gameManager['shiftIntervalID'] = setInterval(function() {
                         shift($('.pacman'));
-                        shift($('.ghost'));
-                    }, shiftCadence);
-                    wakaIntervalID = setInterval(waka, wakaCadence);
-                    powerPelletPulseIntervalID = setInterval(powerPelletPulse, powerPelletPulseCadence);
+                        shift($('.inky'));
+                    }, gameManager['shiftCadence']);
+                    gameManager['wakaIntervalID'] = setInterval(waka, gameManager['wakaCadence']);
+                    gameManager['powerPelletPulseIntervalID'] = setInterval(powerPelletPulse, gameManager['powerPelletPulseCadence']);
                     //ghostShiftIntervalID = setInterval(ghostShift); //TODO: figure out how tf this is going to work
-                    ghostStepIntervalID = setInterval(ghostStepAndScared, 100);
+                    gameManager['ghostStepIntervalID'] = setInterval(ghostStepAndScared, 100);
                     //$('audio.waka0')[0].play();
                // });
             } else {
                 console.log('Stopping');
-                clearInterval(shiftIntervalID);
-                logCanMove($('.pacman'));
+                clearInterval(gameManager['shiftIntervalID']);
             }
             return false;
         }
 
         if (e.which == 82) {
-            console.log('Refreshing');
             location.reload();
             return false;
         }
@@ -106,46 +121,49 @@ $(document).ready(function() {
             return false;
         }
 
-        directionReq = getKeyName(e);
-        changeDirection($('.pacman'), directionReq);
-        //logKeyPressEvent(e);
+        changeDirection($('.pacman'), getKeyName(e));
     });
 
     $(document).on('keyup', function(e) {
-        fired = false;
+        gameManager['fired'] = false;
     });
 
     function changeDirection(sprite, dir) {
         var move = canMove(sprite, dir);
-        nextMove = move['canMove'] ? move : undefined;
+        var data = sprite.data('data');
+        data['nextMove'] = move['canMove'] ? move : undefined;
     }
 
     function shift(sprite) {
         var move;
+        var spriteData = sprite.data('data');
+        var nextMove = spriteData['nextMove'];
+        var shiftDelta = spriteData['shiftDelta'];
 
         if (nextMove !== undefined && nextMove['canMove'] == true) { //if passed a new direction and the new direction is able to be moved to, then set old direction to new direction
-            direction = nextMove['direction'];
+            spriteData['direction'] = nextMove['direction'];
             move = nextMove;
-            nextMove['canMove'] = false;
-            rotatePacman(sprite, direction);
+            turnSprite(sprite, spriteData['direction']);
         } else {
-            move = canMove(sprite, direction);
+            move = canMove(sprite, spriteData['direction']);
             if (!move['canMove']) { //if new direction fails, check to see if old direction can be moved to. if cant, return false with no displacement. else continue trucking on
                 return false;
             }
         }
 
+        spriteData['nextMove'] = undefined; //always clear queued move
+
         if (move['teleport']) {
             teleport(sprite, move['moveTo']);
         }
 
-        if (direction == 'left') {
+        if (spriteData['direction'] == 'left') {
             sprite.animate({'left': '-='+shiftDelta}, 0, 'linear');
-        } else if (direction == 'up') {
+        } else if (spriteData['direction'] == 'up') {
             sprite.animate({'top': '-='+shiftDelta}, 0, 'linear');
-        } else if (direction == 'right') {
+        } else if (spriteData['direction'] == 'right') {
             sprite.animate({'left': '+='+shiftDelta},0, 'linear');
-        } else if (direction == 'down') {
+        } else if (spriteData['direction'] == 'down') {
             sprite.animate({'top': '+='+shiftDelta}, 0, 'linear');
         }
 
@@ -167,6 +185,7 @@ $(document).ready(function() {
         var block;
         var blockCenter;
         var teleport;
+        var stageMatrix = gameManager['stageMatrix'];
 
         if (!Number.isInteger(x) && x-Math.floor(x) == 0.5) {
             blockCenter = true;
@@ -284,26 +303,33 @@ $(document).ready(function() {
             }
         }
 
-        stageMatrix = stageToBuild; //stageMatrix = canonical matrix
+        gameManager['stageMatrix'] = stageToBuild; //stageMatrix = canonical matrix
     }
 
     function positionPacman() {
-        var pacman = $('<div />', {class: 'sprite pacman'});
-        pacman.append($('<div />', {class: 'top open semi'}));
-        pacman.append($('<div />', {class: 'bottom open semi'}));
-
-        $('.stage').append(pacman);
+        var sprite = buildPacman();
+        $('.stage').append(sprite);
 
         var topPos = scaleToGrid(23); //starting row
         var leftPos = scaleToGrid(13.5); //starting col
 
-        pacman.css('top', topPos);
-        pacman.css('left', leftPos);
-        pacman.css('display', 'block');
+        sprite.css('top', topPos);
+        sprite.css('left', leftPos);
+        sprite.css('display', 'block');
+
+        sprite.data('data', pacman);
     }
 
-    function positionGhosts() {
-        var ghost = $('<div />', {class: 'sprite ghost inky'});
+    function buildPacman() {
+        var pacman = $('<div />', {class: 'sprite pacman'});
+        pacman.append($('<div />', {class: 'top open semi'}));
+        pacman.append($('<div />', {class: 'bottom open semi'}));
+
+        return pacman;
+    }
+
+    function buildGhost(name) {
+        var ghost = $('<div />', {class: 'sprite ghost '+name});
         ghost.append($('<div />', {class: 'eye left'}));
         ghost.append($('<div />', {class: 'eye right'}));
         ghost.append($('<div />', {class: 'pupil left'}));
@@ -318,17 +344,27 @@ $(document).ready(function() {
         mouth.append('<div />', {class: 'mouth1'});
         mouth.append('<div />', {class: 'mouth0'});
 
-        $('.stage').append(ghost);
+        return ghost;
+    }
+
+    function positionGhosts() {
+        var sprite = buildGhost('inky');
+
+        $('.stage').append(sprite);
 
         var topPos = scaleToGrid(11); //starting row
         var leftPos = scaleToGrid(13.5); //starting col
 
-        ghost.css('top', topPos);
-        ghost.css('left', leftPos);
-        ghost.css('display', 'block');
+        sprite.css('top', topPos);
+        sprite.css('left', leftPos);
+        sprite.css('display', 'block');
+
+        sprite.data('data', sprite);
     }
 
     function teleport(sprite, point) {
+        var stageMatrix = gameManager['stageMatrix'];
+
         if (point['x'] == stageMatrix[0].length-1) {
             sprite.css('left', 8);
         } else if (point['x'] == 0) {
@@ -337,8 +373,11 @@ $(document).ready(function() {
     }
 
     function collectPellet(point, isPowerPellet) {
+        var stageMatrix = gameManager['stageMatrix'];
+
         stageMatrix[point['y']][point['x']] = 6;
         var pellet = $('.block'+point['y']+'-'+point['x']);
+        
         pellet.addClass('empty');
 
         if (isPowerPellet) {
@@ -357,20 +396,24 @@ $(document).ready(function() {
         }
     }
 
-    function rotatePacman(sprite, dir) {
-        var rotation;
+    function turnSprite(sprite, dir) {
+        if (!sprite.isGhost) {
+            var rotation;
 
-        if (dir == 'up') {
-            rotation = '270';
-        } else if (dir == 'right') {
-            rotation = '0';
-        } else if (dir == 'down') {
-            rotation = '90';
-        } else if (dir == 'left') {
-            rotation = '180';
+            if (dir == 'up') {
+                rotation = '270';
+            } else if (dir == 'right') {
+                rotation = '0';
+            } else if (dir == 'down') {
+                rotation = '90';
+            } else if (dir == 'left') {
+                rotation = '180';
+            }
+            sprite.css('transform', 'rotate('+rotation+'deg)');
+        } else {
+            sprite.removeClass('dir-'+sprite.data('data')['direction']); //should have old direction at this point
+            sprite.addClass('dir-'+dir);
         }
-
-        sprite.css('transform', 'rotate('+rotation+'deg)');
     }
 
     function turnGhost(ghost, dir) {
@@ -422,26 +465,5 @@ $(document).ready(function() {
         } else {
             powerPellets.addClass('pulse');
         }
-    }
-
-    function logKeyPressEvent(e) {
-        var text = getKeyName(e);
-
-        if (text !== '') {
-            text += ' arrow';
-            $('.log-left.top .event').prepend('<p>'+e.which+': '+text+'</p>');
-        }
-    }
-
-    function logDelta(x, y) {
-        $('.log-right .event').prepend('<p>x: '+x+' y: '+y+'</p>');
-    }
-
-    function logCanMove(el) {
-        var moveUp = canMove(el, 'up')['canMove'];
-        var moveRight = canMove(el, 'right')['canMove'];
-        var moveDown = canMove(el, 'down')['canMove'];
-        var moveLeft = canMove(el, 'left')['canMove'];
-        $('.log-left.bottom .event').prepend('<p>'+moveUp+' '+moveRight+' '+moveDown+' '+moveLeft+'</p>');
     }
 });
