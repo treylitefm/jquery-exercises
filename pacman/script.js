@@ -144,7 +144,6 @@ $(document).ready(function() {
         if (nextMove !== undefined && nextMove['canMove'] == true) { //if passed a new direction and the new direction is able to be moved to, then set old direction to new direction
             spriteData['direction'] = nextMove['direction'];
             move = nextMove;
-            turnSprite(sprite, spriteData['direction']);
         } else {
             move = canMove(sprite, spriteData['direction']);
             if (!move['canMove']) { //if new direction fails, check to see if old direction can be moved to. if cant, return false with no displacement. else continue trucking on
@@ -153,6 +152,7 @@ $(document).ready(function() {
             }
         }
 
+        turnSprite(sprite, spriteData['direction']);
         spriteData['waka'] = spriteData['isGhost'] ? undefined : true; //if waka isnt running, start it back up
         spriteData['nextMove'] = undefined; //always clear queued move
 
@@ -187,14 +187,26 @@ $(document).ready(function() {
         var collectPellet = false;
         var collectPowerPellet = false;
         var block;
-        var blockCenter;
+        var collideBlockCenter; //front edge colliding with block center
+        var atBlockCenter; //directly over block center
         var teleport;
         var stageMatrix = gameManager['stageMatrix'];
 
         if (!Number.isInteger(x) && x-Math.floor(x) == 0.5) {
-            blockCenter = true;
+            collideBlockCenter = true;
         } else if (!Number.isInteger(y) && y-Math.floor(y) == 0.5) {
-            blockCenter = true;
+            collideBlockCenter = true;
+        } else if (Number.isInteger(x) && Number.isInteger(y)) {
+            atBlockCenter = true;
+        }
+
+        if (atBlockCenter && spriteData['isGhost']) { //if ghost can turn from center of block, override dir
+            //debugger;
+            var turn = canTurn({x: x, y: y});
+            if (turn['canTurn']) {
+                dir = turn['options'][getRandomInt(0, turn['options'].length)]; 
+                spriteData['direction'] = dir;
+            }
         }
 
         if (dir == 'up') {
@@ -225,7 +237,7 @@ $(document).ready(function() {
 
         if (block !== undefined) {
             canMove = block !== 'border';
-            if (blockCenter) {
+            if (collideBlockCenter) {
                 collectPellet = (block == 'pellet' && !spriteData['isGhost']);
                 collectPowerPellet = (block == 'power-pellet' && !spriteData['isGhost']);
                 teleport = block == 'portal';
@@ -250,6 +262,30 @@ $(document).ready(function() {
         var centerX = (position['left']+position['left']+sprite.width())/2;
 
         return {y: centerY.toFixed(2), x: centerX.toFixed(2)};
+    }
+
+    function canTurn(center) {
+        var options = [];
+        var x = center['x'];
+        var y = center['y'];
+
+        if (getBlockType(gameManager['stageMatrix'][y][x-1]) !== 'border') {
+            options.push('left');
+        }
+        if (getBlockType(gameManager['stageMatrix'][y-1][x]) !== 'border') {
+            options.push('up');
+        }
+        if (getBlockType(gameManager['stageMatrix'][y][x+1]) !== 'border') {
+            options.push('right');
+        }
+        if (getBlockType(gameManager['stageMatrix'][y+1][x]) !== 'border') {
+            options.push('down');
+        }
+
+        return {
+            canTurn: options.length > 0,
+            options: options
+        }
     }
 
     function getMatrixPos(center) {
@@ -407,7 +443,8 @@ $(document).ready(function() {
     }
 
     function turnSprite(sprite, dir) {
-        if (!sprite.isGhost) {
+        var spriteData = sprite.data('data');
+        if (!spriteData['isGhost']) {
             var rotation;
 
             if (dir == 'up') {
@@ -421,7 +458,10 @@ $(document).ready(function() {
             }
             sprite.css('transform', 'rotate('+rotation+'deg)');
         } else {
-            sprite.removeClass('dir-'+sprite.data('data')['direction']); //should have old direction at this point
+            sprite.removeClass('dir-left');
+            sprite.removeClass('dir-up');
+            sprite.removeClass('dir-right');
+            sprite.removeClass('dir-down');
             sprite.addClass('dir-'+dir);
         }
     }
@@ -475,5 +515,11 @@ $(document).ready(function() {
         } else {
             powerPellets.addClass('pulse');
         }
+    }
+
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min;
     }
 });
