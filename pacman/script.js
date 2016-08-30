@@ -19,7 +19,7 @@ $(document).ready(function() {
     [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0],
     [0,6,6,6,6,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,6,6,6,6,0],
     [0,6,6,6,6,0,1,0,0,6,6,6,6,6,6,6,6,6,6,0,0,1,0,6,6,6,6,0],
-    [0,6,6,6,6,0,1,0,0,6,0,0,0,6,6,0,0,0,6,0,0,1,0,6,6,6,6,0],
+    [0,6,6,6,6,0,1,0,0,6,0,0,0,0,0,0,0,0,6,0,0,1,0,6,6,6,6,0],
     [0,0,0,0,0,0,1,0,0,6,0,6,6,6,6,6,6,0,6,0,0,1,0,0,0,0,0,0],
 
     [5,6,6,6,6,6,1,6,6,6,0,6,6,6,6,6,6,0,6,6,6,1,6,6,6,6,6,5], // Center row with teleport
@@ -135,7 +135,7 @@ $(document).ready(function() {
         data['nextMove'] = move['canMove'] ? move : undefined;
     }
 
-    function shift(sprite) {
+    function shift(sprite) { //TODO: A* algorithm for finding shortest route to pacman
         var move;
         var spriteData = sprite.data('data');
         var nextMove = spriteData['nextMove'];
@@ -201,14 +201,16 @@ $(document).ready(function() {
         }
 
         if (atBlockCenter && spriteData['isGhost']) { //if ghost can turn from center of block, override dir
-            var turn = canTurn({x: x, y: y});
-            if (turn['canTurn']) {
+            debugger;
+            var turn = canTurn(sprite, {x: x, y: y});
+            if (turn['canTurn'] && turn['atCorner']) {
+                console.log('at corner or intersectrion');
                 var index = turn['options'].indexOf(spriteData['direction']); //find index of current direction in options
                 if (index < 0) { //if options doesnt have current direction, equally weighted for new direction 
                     dir = turn['options'][getRandomInt(0, turn['options'].length)]; 
                     spriteData['direction'] = dir;
                 } else { //weighted decision; ghost should want to continue going straight iff its a possibility 
-                    if (getRandomInt(0, 100) < 99) {
+                    if (getRandomInt(0, 100) < 70) {
                         //do nothing and continue in current direction
                     } else {
                         turn['options'].splice(index, 1); //remove current direction as an option
@@ -274,10 +276,12 @@ $(document).ready(function() {
         return {y: centerY.toFixed(2), x: centerX.toFixed(2)};
     }
 
-    function canTurn(center) {
+    function canTurn(sprite, center) {
         var options = [];
         var x = center['x'];
         var y = center['y'];
+        var spriteData = sprite.data('data');
+        var atCorner;
 
         if (getBlockType(gameManager['stageMatrix'][y][x-1]) !== 'border') {
             options.push('left');
@@ -292,9 +296,19 @@ $(document).ready(function() {
             options.push('down');
         }
 
+        var dir=spriteData['direction'];
+        if ((dir == 'left' || dir == 'right') && options.length == 2 && options.indexOf('left') >= 0  && options.indexOf('right') >= 0) {
+            atCorner = false;
+        } else if ((dir == 'up' || dir == 'down') && options.length == 2 && options.indexOf('up') >= 0  && options.indexOf('down') >= 0) {
+            atCorner = false;
+        } else {
+            atCorner = true;
+        }
+
         return {
             canTurn: options.length > 0,
-            options: options
+            options: options,
+            atCorner: atCorner
         }
     }
 
