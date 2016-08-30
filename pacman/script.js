@@ -201,11 +201,21 @@ $(document).ready(function() {
         }
 
         if (atBlockCenter && spriteData['isGhost']) { //if ghost can turn from center of block, override dir
-            //debugger;
             var turn = canTurn({x: x, y: y});
             if (turn['canTurn']) {
-                dir = turn['options'][getRandomInt(0, turn['options'].length)]; 
-                spriteData['direction'] = dir;
+                var index = turn['options'].indexOf(spriteData['direction']); //find index of current direction in options
+                if (index < 0) { //if options doesnt have current direction, equally weighted for new direction 
+                    dir = turn['options'][getRandomInt(0, turn['options'].length)]; 
+                    spriteData['direction'] = dir;
+                } else { //weighted decision; ghost should want to continue going straight iff its a possibility 
+                    if (getRandomInt(0, 100) < 99) {
+                        //do nothing and continue in current direction
+                    } else {
+                        turn['options'].splice(index, 1); //remove current direction as an option
+                        dir = turn['options'][getRandomInt(0, turn['options'].length)]; 
+                        spriteData['direction'] = dir;
+                    }
+                }
             }
         }
 
