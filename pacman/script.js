@@ -201,10 +201,8 @@ $(document).ready(function() {
         }
 
         if (atBlockCenter && spriteData['isGhost']) { //if ghost can turn from center of block, override dir
-            debugger;
             var turn = canTurn(sprite, {x: x, y: y});
             if (turn['canTurn'] && turn['atCorner']) {
-                console.log('at corner or intersectrion');
                 var index = turn['options'].indexOf(spriteData['direction']); //find index of current direction in options
                 if (index < 0) { //if options doesnt have current direction, equally weighted for new direction 
                     dir = turn['options'][getRandomInt(0, turn['options'].length)]; 
@@ -445,8 +443,24 @@ $(document).ready(function() {
         pellet.addClass('empty');
 
         if (isPowerPellet) {
+            debugger;
             pellet.removeClass('power-pellet');
-            //activate scared mode
+            var ghosts = $('.ghost');
+            
+            ghosts.addClass('scared');
+            inky['shiftDelta'] = 2;
+            var scaredGhostIntervalID;
+            setTimeout(function() {
+                scaredGhostIntervalID = setInterval(function() {
+                    ghosts.addClass('flash');
+                    setTimeout(function () { ghosts.removeClass('flash'); }, 500);
+                }, 750);
+            }, 2000);
+            setTimeout(function() {
+                clearInterval(scaredGhostIntervalID);
+                ghosts.removeClass('scared');
+            }, 8000);
+            inky['shiftDelta'] = 4;
         } else {
             pellet.removeClass('pellet');
         }
