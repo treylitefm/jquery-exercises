@@ -173,6 +173,33 @@ $(document).ready(function() {
         if (move['collectPellet'] || move['collectPowerPellet']) {
             collectPellet(move['moveTo'], move['collectPowerPellet']);
         }
+
+        if (spriteData['isGhost']) {
+            isCollisionWithPacman(sprite);
+        }
+    }
+
+    function isCollisionWithPacman(ghost) {
+        function removePx(str) {
+            var index = str.indexOf('px');
+            return Number(str.slice(0, index));
+        }
+        var gx0 = removePx(ghost.css('left'));
+        var gx1 = removePx(ghost.css('left'))+16;
+        var gy0 = removePx(ghost.css('top'));
+        var gy1 = removePx(ghost.css('top'))+16;
+
+        var pacman = $('.pacman');
+        var px0 = removePx(pacman.css('left'));
+        var px1 = removePx(pacman.css('left'))+16;
+        var py0 = removePx(pacman.css('top'));
+        var py1 = removePx(pacman.css('top'))+16;
+
+        if (gx0 > px1 || gx1 < px0 || gy0 > py1 || gy1 < py0) {
+            console.log('SAFE');
+        } else {
+            console.log('THIS IS THE END, GOODBYE PACMAN');
+        }
     }
 
     function canMove(sprite, dir) { //collision
