@@ -316,6 +316,10 @@ body {
     background-color: red;
 }
 
+.sprite.ghost.eaten {
+    background-color: black;
+}
+
 .log {
     width: 200px;
     max-height: 280px;

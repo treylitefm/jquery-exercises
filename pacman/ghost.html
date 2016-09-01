@@ -201,6 +201,10 @@
         .sprite.ghost.scared.flash .mouth {
             background-color: red;
         }
+
+        .sprite.ghost.eaten {
+            background
+        }
     </style>
     <script src="jquery.min.js"></script>
     <script>
@@ -234,7 +238,6 @@
             });
             setInterval(function() {
                 var ghost = $('.ghost');
-
                 if (ghost.hasClass('step')) {
                     ghost.removeClass('step');
                     } else {

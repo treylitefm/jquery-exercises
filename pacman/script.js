@@ -53,6 +53,7 @@ $(document).ready(function() {
         shiftCadence: 50, //ms
         wakaCadence:  100, //ms
         powerPelletPulseCadence: 500, //ms
+        powerPelletActive: false,
         initialized: false,
         shiftIntervalID: undefined,
         wakaIntervalID: undefined,
@@ -180,14 +181,15 @@ $(document).ready(function() {
         if (spriteData['isGhost'] && isCollisionWithPacman(sprite)) {
             if (sprite.hasClass('scared')) {
                 eatGhost(sprite);
-            } else {
+            } else if (!gameManager['powerPelletActive']) {
                 return true; //Game Over
             }
         }
     }
 
-    function eatGhost() {
-        debugger;
+    function eatGhost(sprite) {
+        sprite.removeClass('scared');
+        sprite.addClass('eaten');
     }
 
     function isCollisionWithPacman(ghost) {
@@ -482,10 +484,12 @@ $(document).ready(function() {
 
         if (isPowerPellet) {
             pellet.removeClass('power-pellet');
+            gameManager['powerPelletActive'] = true;
             var ghosts = $('.ghost');
             
             ghosts.addClass('scared');
             inky['shiftDelta'] = 2;
+
             var scaredGhostIntervalID;
             setTimeout(function() {
                 scaredGhostIntervalID = setInterval(function() {
@@ -495,6 +499,7 @@ $(document).ready(function() {
             }, 2000);
             setTimeout(function() {
                 clearInterval(scaredGhostIntervalID);
+                gameManager['powerPelletActive'] = false;
                 ghosts.removeClass('scared');
             }, 8000);
             inky['shiftDelta'] = 4;
