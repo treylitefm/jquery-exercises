@@ -98,7 +98,10 @@ $(document).ready(function() {
                // $('audio.start').on('ended', function() {
                     gameManager['shiftIntervalID'] = setInterval(function() {
                         shift($('.pacman'));
-                        shift($('.inky'));
+                        if (shift($('.inky'))) { //checking for if pacman is caught
+                            clearInterval(gameManager['shiftIntervalID']);
+                            console.log('THIS IS THE END, GOODBYE PACMAN');
+                        }
                     }, gameManager['shiftCadence']);
                     gameManager['wakaIntervalID'] = setInterval(waka, gameManager['wakaCadence']);
                     gameManager['powerPelletPulseIntervalID'] = setInterval(powerPelletPulse, gameManager['powerPelletPulseCadence']);
@@ -174,9 +177,17 @@ $(document).ready(function() {
             collectPellet(move['moveTo'], move['collectPowerPellet']);
         }
 
-        if (spriteData['isGhost']) {
-            isCollisionWithPacman(sprite);
+        if (spriteData['isGhost'] && isCollisionWithPacman(sprite)) {
+            if (sprite.hasClass('scared')) {
+                eatGhost(sprite);
+            } else {
+                return true; //Game Over
+            }
         }
+    }
+
+    function eatGhost() {
+        debugger;
     }
 
     function isCollisionWithPacman(ghost) {
@@ -196,9 +207,9 @@ $(document).ready(function() {
         var py1 = removePx(pacman.css('top'))+16;
 
         if (gx0 > px1 || gx1 < px0 || gy0 > py1 || gy1 < py0) {
-            console.log('SAFE');
+            return false;
         } else {
-            console.log('THIS IS THE END, GOODBYE PACMAN');
+            return true;
         }
     }
 
@@ -470,7 +481,6 @@ $(document).ready(function() {
         pellet.addClass('empty');
 
         if (isPowerPellet) {
-            debugger;
             pellet.removeClass('power-pellet');
             var ghosts = $('.ghost');
             
