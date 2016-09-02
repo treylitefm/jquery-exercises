@@ -73,16 +73,33 @@ $(document).ready(function() {
     
     var inky = {
         name: 'inky',
-//        direction: getRandomDirection(),
         direction: 'left',
         shiftDelta: 4, //px
         nextMove: undefined,
         isGhost: true
     }
 
-    var blinky = {};
-    var pinky = {};
-    var clyde = {};
+    var blinky = {
+        name: 'blinky',
+        direction: 'right',
+        shiftDelta: 4, //px
+        nextMove: undefined,
+        isGhost: true
+    };
+    var pinky = {
+        name: 'pinky',
+        direction: 'left',
+        shiftDelta: 4, //px
+        nextMove: undefined,
+        isGhost: true
+    };
+    var clyde = {
+        name: 'clyde',
+        direction: 'right',
+        shiftDelta: 4, //px
+        nextMove: undefined,
+        isGhost: true
+    };
 
     $(document).on('keydown', function(e) {
         if (gameManager['fired']) {
@@ -92,14 +109,17 @@ $(document).ready(function() {
         if (e.which == 32) {
             if (!gameManager['initialized']) {
                 buildStage(stage0);
-                positionGhosts();
+                positionGhost(inky);
+                positionGhost(blinky);
+                positionGhost(pinky);
+                positionGhost(clyde);
                 positionPacman();
 //                $('audio.start')[0].play();
                 gameManager['initialized'] = true;
                // $('audio.start').on('ended', function() {
                     gameManager['shiftIntervalID'] = setInterval(function() {
                         shift($('.pacman'));
-                        if (shift($('.inky'))) { //checking for if pacman is caught
+                        if (shift($('.inky')) || shift($('.blinky')) || shift($('.pinky')) || shift($('.clyde'))) { //checking for if pacman is caught
                             clearInterval(gameManager['shiftIntervalID']);
                             console.log('THIS IS THE END, GOODBYE PACMAN');
                         }
@@ -449,8 +469,9 @@ $(document).ready(function() {
         return ghost;
     }
 
-    function positionGhosts() {
-        var sprite = buildGhost('inky');
+    function positionGhost(ghost) {
+        var sprite = buildGhost(ghost['name']);
+        console.log(sprite,ghost);
 
         $('.stage').append(sprite);
 
@@ -461,7 +482,7 @@ $(document).ready(function() {
         sprite.css('left', leftPos);
         sprite.css('display', 'block');
 
-        sprite.data('data', inky);
+        sprite.data('data', ghost);
     }
 
     function teleport(sprite, point) {
